@@ -27,7 +27,29 @@ module Jekyll
       # ordinary JavaScript -- injecting an <a> tag mid-expression breaks it.
       return unless doc.respond_to?(:output_ext) && doc.output_ext == ".html"
 
-      doc.content = doc.content.gsub(CARD) do
+      doc.content = transform(doc.content)
+    end
+
+    # Regions whose contents must never be touched. A card name does not appear
+    # inside a <script>, but ordinary JavaScript is full of (( and <<.
+    #
+    # This is not hypothetical: the search page contains
+    #     var out = esc((from ? '...' : '') + text.slice(from, to) ...)
+    # and the ((...)) pattern turned that into an <a> tag mid-expression, which
+    # made search.html a syntax error and broke search on the live site.
+    SKIP = %r{(<script\b[^>]*>.*?</script>|<style\b[^>]*>.*?</style>|
+               <pre\b[^>]*>.*?</pre>|<code\b[^>]*>.*?</code>)}mix
+
+    def transform(content)
+      # Split into alternating [outside, skipped, outside, skipped, ...] and only
+      # rewrite the parts outside.
+      content.split(SKIP).map do |part|
+        part =~ /\A<(script|style|pre|code)\b/im ? part : rewrite(part)
+      end.join
+    end
+
+    def rewrite(text)
+      text.gsub(CARD) do
         card = (Regexp.last_match(1) || Regexp.last_match(2)).strip
         %(<a class="card-link" target="_blank" ) +
           %(href="https://scryfall.com/search?q=#{CGI.escape(card)}" ) +

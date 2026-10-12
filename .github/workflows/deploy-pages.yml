@@ -97,6 +97,12 @@ jobs:
       - name: Check internal links and anchors
         run: python3 script/check-internal-links.py
 
+      # The card-link plugin rewrites <<Card>> and ((Card)). Ordinary JavaScript
+      # is full of both shapes, and an <a> tag injected mid-expression makes the
+      # page a syntax error -- which is how search broke on the live site.
+      - name: Check inline scripts are intact
+        run: python3 script/check-scripts.py
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
