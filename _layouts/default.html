@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: 'en' }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if page.title %}{{ page.title }} &middot; {% endif %}{{ site.title }}</title>
+<meta name="description" content="{{ page.excerpt | default: site.description | strip_html | strip_newlines | truncate: 160 }}">
+<link rel="canonical" href="{{ page.url | absolute_url }}">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:ital,wght@0,400;0,500;0,700;1,400&display=swap">
+{%- comment -%}
+  Cache-bust on the file's own modified time. Without a version in the URL a
+  browser applies heuristic freshness to assets served without Cache-Control
+  and can keep running an old copy indefinitely -- which is exactly what
+  happened while developing the card preview.
+{%- endcomment -%}
+{%- assign css = site.static_files | where: "path", "/assets/css/main.css" | first -%}
+<link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}?v={{ css.modified_time | date: '%s' | default: site.time | date: '%s' }}">
+{%- feed_meta %}
+</head>
+<body>
+<script>
+// Applied before first paint so a dark reader never sees a white flash.
+try{var t=localStorage.getItem('dmtheme');
+if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}
+</script>
+<header class="masthead wrap">
+  <button class="themetoggle" id="themetoggle" type="button" aria-label="Switch between light and dark">Dark</button>
+  <a class="brand" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+  <div class="tagline">{{ site.description }}</div>
+</header>
+<nav class="nav">
+  <div class="wrap">
+    <ul>
+      {%- for item in site.nav %}
+      <li><a href="{{ item.url | relative_url }}"{% if page.url == item.url %} aria-current="page"{% endif %}>{{ item.title }}</a></li>
+      {%- endfor %}
+    </ul>
+  </div>
+</nav>
+<main class="wrap">
+  {{ content }}
+</main>
+<footer class="site">
+  <div class="wrap">
+    {{ site.footer_text }}
+    &middot; <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
+  </div>
+</footer>
+<script>
+(function(){
+  var b=document.getElementById('themetoggle'); if(!b) return;
+  var r=document.documentElement;
+  // system -> light -> dark -> system. No stamp means follow the OS.
+  var order=['system','light','dark'], names={system:'Auto',light:'Light',dark:'Dark'};
+  function current(){ var a=r.getAttribute('data-theme'); return (a==='light'||a==='dark')?a:'system'; }
+  function apply(v){
+    if(v==='system') r.removeAttribute('data-theme'); else r.setAttribute('data-theme',v);
+    try{ v==='system' ? localStorage.removeItem('dmtheme') : localStorage.setItem('dmtheme',v); }catch(e){}
+    b.textContent=names[v];
+    b.setAttribute('aria-label','Theme: '+names[v]+'. Click to change.');
+  }
+  apply(current());
+  b.addEventListener('click',function(){ apply(order[(order.indexOf(current())+1)%3]); });
+})();
+</script>
+{%- comment -%}
+  Card art pulled into the repo during the migration, so the hover preview can
+  use a local file instead of asking Scryfall. Only 24 of the 409 linked cards
+  have one; without this list the preview probes and 404s for the other 385.
+{%- endcomment -%}
+<script>
+window.DM_LOCAL_CARDS = [
+{%- assign cards = site.static_files | where_exp: "f", "f.path contains '/assets/images/cards/'" -%}
+{%- for f in cards %}"{{ f.basename }}"{% unless forloop.last %},{% endunless %}{% endfor -%}
+];
+</script>
+{%- assign acjs = site.static_files | where: "path", "/assets/js/autocard.js" | first -%}
+<script src="{{ '/assets/js/autocard.js' | relative_url }}?v={{ acjs.modified_time | date: '%s' | default: site.time | date: '%s' }}" defer></script>
+</body>
+</html>

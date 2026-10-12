@@ -1,0 +1,53 @@
+Main
+3 Sensei's Divining Top
+4 Paradoxical Outcome
+1 Time Walk
+1 Vampiric Tutor
+1 Blightsteel Colossus
+1 Mystic Forge
+4 Spire of Industry
+3 Mox Opal
+4 Mishra's Workshop
+1 Mana Crypt
+1 Tezzeret the Seeker
+1 Sol Ring
+1 Mox Jet
+2 Manifold Key
+1 Inventors' Fair
+1 Black Lotus
+1 Tinker
+1 Demonic Tutor
+1 Lotus Petal
+1 Ancestral Recall
+1 Memory Jar
+1 Voltaic Key
+1 Paradox Engine
+1 Aetherflux Reservoir
+1 Time Vault
+1 Timetwister
+1 Repeal
+1 Mox Ruby
+1 Mana Vault
+1 Mox Emerald
+1 Mox Pearl
+1 Mox Sapphire
+1 Karn, the Great Creator
+1 Bolas's Citadel
+1 Tolarian Academy
+3 Grim Monolith
+1 Hurkyl's Recall
+1 Monastery Mentor
+2 Ancient Tomb
+2 City of Brass
+3 Helm of Awakening
+
+SIDE
+1 Mycosynth Lattice
+1 Tranquil Domain
+2 Hurkyl's Recall
+3 Grafdigger's Cage
+1 Echoing Truth
+2 Abrade
+1 Jester's Cap
+3 Defense Grid
+1 Narset, Parter of Veils

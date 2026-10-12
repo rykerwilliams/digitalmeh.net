@@ -1,0 +1,50 @@
+2 Island
+1 Mystic Sanctuary
+3 Polluted Delta
+4 Scalding Tarn
+4 Underground Sea
+2 Volcanic Island
+1 Ancestral Recall
+1 Black Lotus
+1 Brainstorm
+1 Dack Fayden
+1 Demonic Consultation
+1 Demonic Tutor
+1 Dig Through Time
+2 Doomsday
+1 Flusterstorm
+4 Force of Will
+1 Gitaxian Probe
+1 Gush
+1 Hurkyl's Recall
+1 Lightning Bolt
+1 Lotus Petal
+1 Mental Misstep
+1 Merchant Scroll
+1 Mox Jet
+1 Mox Ruby
+1 Mox Sapphire
+1 Mystical Tutor
+1 Narset, Parter of Veils
+1 Ponder
+4 Preordain
+3 Pyroblast
+2 Sensei's Divining Top
+1 Snapcaster Mage
+2 Thassa's Oracle
+1 Thoughtseize
+1 Time Walk
+1 Treasure Cruise
+1 Vampiric Tutor
+1 Yawgmoth's Will
+Sideboard:
+
+3 By Force
+2 Fatal Push
+3 Grafdigger's Cage
+1 Mountain
+1 Pyroblast
+2 Ravenous Trap
+1 Shattering Spree
+1 Toxic Deluge
+1 Yixlid Jailer

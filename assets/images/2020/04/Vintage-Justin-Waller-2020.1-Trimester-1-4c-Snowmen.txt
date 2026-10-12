@@ -1,0 +1,45 @@
+1 Mox Emerald
+1 Mox Jet
+1 MoxPearl
+1 Mox Ruby
+1 Mox Sapphire
+1 Black Lotus
+1 Brainstorm
+1 Ancestral Recall
+1 Ponder
+1 Mental Misstep
+1 Pyroblast
+4 Arcum's Astrolabe
+4 Deathrite Shaman
+3 Ice-Fang Coatl
+2 Lavinia, Azorious Renegade
+1 Time Walk
+1 Demonic Tutor
+1 Force of Vigor
+1 Force of Negation
+1 Monastery Mentor
+2 Teferi, Time Raveler
+2 Dack Fayden
+1 Oko, Thief of Crowns
+1 Narset, Parter of Veils
+1 Karn, the Great Creator
+4 Force of Will
+1 Dig-Through Time
+1 Treasure Cruise
+4 Wasteland
+1 Strip Mine
+3 Misty Rainforest
+4 Prismatic Vista
+1 Snow-Covered Mountain
+1 Snow-Covered Forest
+4 Snow-Covered Islands
+
+1 Engineered Explosives
+1 Trinisphere
+1 Mycosinthe Lattice
+3 Soul-Guide Lantern
+2 Force of Vigor
+2 Collector Ouphe
+3 Ravenous Trap
+1 Pyroblast
+1 Flusterstorm

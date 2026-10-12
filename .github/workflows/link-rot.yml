@@ -1,0 +1,99 @@
+name: Link Rot
+
+# Outbound links rot on their own schedule, so this checks them on ours.
+#
+# Weekly, not per-push: between them these scripts make several hundred requests
+# to third-party sites and get rate-limited for it. Running on every commit would
+# be rude to those sites and would tell us nothing new.
+#
+# Deliberately does not commit anything. A bot commit to main triggers a publish,
+# and a link report is not a reason to republish the site. The report is uploaded
+# as an artifact and, if something is actually dead, filed as an issue.
+
+on:
+  schedule:
+    # Mondays, 07:00 UTC.
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: link-rot
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check outbound links
+        id: links
+        run: |
+          set -o pipefail
+          python3 script/check-links.py --out docs/link-report.md 2>&1 | tail -40
+          dead=$(sed -n 's/^| \*\*dead or unreachable\*\* | \*\*\([0-9]*\)\*\* |$/\1/p' \
+                 docs/link-report.md | head -1)
+          echo "dead=${dead:-unknown}" >> "$GITHUB_OUTPUT"
+          echo "Dead links: ${dead:-unknown}"
+
+      - name: Check Magic card names against Scryfall
+        id: cards
+        continue-on-error: true
+        run: |
+          # Exits 1 when a name is wrong, which is a finding, not a build failure.
+          python3 script/check-cards.py --delay 0.6 2>&1 | tail -40 | tee cards.txt
+          echo "bad=$(grep -c '^  .*scryfall says' cards.txt || true)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: link-report
+          path: |
+            docs/link-report.md
+            cards.txt
+
+      - name: File an issue if anything is dead
+        if: steps.links.outputs.dead != '0' || steps.cards.outputs.bad != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const dead = '${{ steps.links.outputs.dead }}';
+            const bad  = '${{ steps.cards.outputs.bad }}';
+            const report = fs.readFileSync('docs/link-report.md', 'utf8');
+            const cards = fs.existsSync('cards.txt') ? fs.readFileSync('cards.txt', 'utf8') : '';
+            const title = `Link rot: ${dead} dead link(s), ${bad} bad card name(s)`;
+            const body = [
+              `Found by the weekly \`link-rot\` workflow.`,
+              ``,
+              `Dead outbound links: **${dead}**`,
+              `Card names Scryfall does not recognise: **${bad}**`,
+              ``,
+              `Fix dead links with \`script/archive-dead-links.py --apply --unlink\`,`,
+              `which points them at an Internet Archive snapshot where one exists and`,
+              `drops the \`<a>\` where none does.`,
+              ``,
+              `<details><summary>Report</summary>`, ``, report, ``, `</details>`,
+              ``,
+              cards ? `<details><summary>Card names</summary>\n\n\`\`\`\n${cards}\n\`\`\`\n</details>` : '',
+            ].join('\n');
+
+            // Reuse the open issue rather than filing a new one every Monday.
+            const open = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'link-rot',
+            });
+            if (open.data.length) {
+              await github.rest.issues.update({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: open.data[0].number, title, body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, body, labels: ['link-rot'],
+              });
+            }

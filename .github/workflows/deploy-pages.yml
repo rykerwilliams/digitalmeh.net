@@ -1,0 +1,112 @@
+name: Deploy to GitHub Pages
+
+# Builds the site and publishes it to GitHub Pages.
+#
+# Until DNS is cut over, digitalmeh.net still resolves to the WordPress install
+# on the AWS box; this publishes the Jekyll replacement to its Pages URL in the
+# meantime, so rolling back is just a DNS change. Nothing here touches the AWS
+# box -- the old site is not built from this repo.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deployments race. Queue rather than cancel, so a run that is
+# already publishing is allowed to finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2.4'
+          bundler-cache: true
+
+      - uses: actions/configure-pages@v5
+
+      - name: Build site
+        env:
+          JEKYLL_ENV: production
+        run: bundle exec jekyll build
+
+      # NOTE: deliberately no step that strips .html from built files. Posts are
+      # authored as .html (kramdown mangles the WordPress gallery markup), but
+      # permalink: /:title/ already emits them as slug/index.html, so the old
+      # WordPress URLs resolve as-is. Renaming output would also hit 404.html
+      # and break the custom 404 page.
+
+      # Pages binds a custom domain from the deployed artifact, not only from the
+      # repository setting. The preview deployment did not serve its domain until
+      # an artifact carrying this file was published, and the production domain
+      # behaved the same way: no certificate was requested until the artifact
+      # declared it.
+      - name: Set custom domain
+        run: echo "digitalmeh.net" > _site/CNAME
+
+      - name: Check site size against the Pages limit
+        run: |
+          bytes=$(du -sb _site | cut -f1)
+          mb=$(( bytes / 1024 / 1024 ))
+          echo "Published site: ${mb} MB"
+          if [ "$mb" -gt 900 ]; then
+            echo "::error::Site is ${mb} MB. GitHub Pages hard-limits published sites to 1 GB."
+            echo "Run script/prep-images.sh --apply, and move large media off the repo."
+            exit 1
+          elif [ "$mb" -gt 500 ]; then
+            echo "::warning::Site is ${mb} MB, over half the 1 GB Pages limit."
+          fi
+
+
+      # Catches a post that references an image or thumbnail which is not in the
+      # repo -- a renamed file, a gallery whose thumbnails were never generated,
+      # or a link repointed at a path that does not exist.
+      - name: Check images and thumbnails resolve
+        run: |
+          python3 - <<'PY'
+          import re, os, glob, sys, urllib.parse
+          refs = set()
+          for h in glob.glob("_site/**/*.html", recursive=True):
+              html = open(h, encoding="utf-8", errors="ignore").read()
+              refs |= set(re.findall(r'src="(/assets/thumbs/[^"]+)"', html))
+              refs |= set(re.findall(r'src="(/assets/images/[^"]+\.(?:jpg|jpeg|JPG|JPEG|png|PNG|gif|GIF))"', html))
+              refs |= set(re.findall(r'href="(/assets/images/[^"]+\.(?:jpg|jpeg|JPG|JPEG))"', html))
+          missing = [r for r in refs if not os.path.isfile("_site" + urllib.parse.unquote(r))]
+          print(f"checked {len(refs)} asset URLs, {len(missing)} missing")
+          for m in sorted(missing)[:20]:
+              print(f"::error::missing file for {m}")
+          if missing:
+              print("::error::Referenced images are missing. Run: script/prep-images.sh --apply")
+              sys.exit(1)
+          PY
+
+      # Catches a link to a page that no longer exists, and a link to an #anchor
+      # that is not on the page it points at -- how post tags and categories
+      # reach their sections on /tags/ and /categories/.
+      - name: Check internal links and anchors
+        run: python3 script/check-internal-links.py
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

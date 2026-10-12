@@ -1,0 +1,36 @@
+---
+layout: default
+---
+<article class="post">
+  <header class="post-head">
+    <h1>{{ page.title }}</h1>
+    <div class="meta">
+      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%-d %B %Y" }}</time>
+    </div>
+  </header>
+  {%- if page.image %}
+  <figure class="leadimg">
+    <img src="{{ page.image | relative_url }}" alt="">
+    {%- if page.image_credit %}
+    <figcaption>
+      photo credit: {{ page.image_credit }}
+      {%- if page.image_license %} &middot; {{ page.image_license }}{% endif %}
+      {%- if page.image_source %} &middot; <a href="{{ page.image_source }}" rel="noopener">source</a>{% endif %}
+      {%- if page.image_note %} <span class="note">({{ page.image_note }})</span>{% endif %}
+    </figcaption>
+    {%- endif %}
+  </figure>
+  {%- endif %}
+  <div class="content">
+    {{ content }}
+  </div>
+  {%- if page.tags.size > 0 %}
+  <div class="tags">
+    {%- comment -%}
+      /tags/ lists every tag as <h2 id="{{ tag | slugify }}">, so each of these
+      resolves to its own section there. The tags were inert text before.
+    {%- endcomment -%}
+    {% for t in page.tags %}<a class="tag" href="{{ '/tags/' | relative_url }}#{{ t | slugify }}">{{ t }}</a>{% endfor %}
+  </div>
+  {%- endif %}
+</article>

@@ -1,0 +1,46 @@
+1 Ancestral Recall
+1 Black Lotus
+1 Blightsteel Colossus
+1 Brainstorm
+1 Channel
+3 Dack Fayden
+3 Daze
+1 Dig Through Time
+1 Emrakul, the Aeons Torn
+1 Flooded Strand
+3 Footfall Crater
+4 Forbidden Orchard
+2 Force of Negation
+4 Force of Will
+1 Gitaxian Probe
+1 Gush
+1 Island
+1 Karn, the Great Creator
+1 Mental Misstep
+1 Misty Rainforest
+1 Mox Emerald
+1 Mox Jet
+1 Mox Pearl
+1 Mox Ruby
+1 Mox Sapphire
+1 Narset, Parter of Veils
+4 Oath of Druids
+2 Oko, Thief of Crowns
+2 Polluted Delta
+1 Ponder
+4 Preordain
+1 Scalding Tarn
+1 Time Walk
+1 Tinker
+1 Treasure Cruise
+2 Tropical Island
+2 Volcanic Island
+
+2 Abrade
+2 Flusterstorm
+1 Mycosynth Lattice
+1 Nature's Claim
+3 Pyroblast
+3 Soul-Guide Lantern
+2 Surgical Extraction
+1 Tormod's Crypt

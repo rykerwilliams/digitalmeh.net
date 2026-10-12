@@ -1,0 +1,8 @@
+# Overlay for local previews. Without it a preview reaches for the live site:
+# jekyll-redirect-from writes absolute redirects, so opening an old dated URL
+# bounces you to digitalmeh.net, and canonical/feed/sitemap URLs point there
+# too (446 absolute URLs in a production build).
+#   script/build.sh --serve
+# Never use for the production build.
+url: ""
+baseurl: ""

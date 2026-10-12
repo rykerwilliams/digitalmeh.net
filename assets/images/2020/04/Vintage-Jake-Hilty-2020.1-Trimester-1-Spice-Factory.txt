@@ -1,0 +1,55 @@
+//Main
+1 Ancestral Recall
+3 Arcum's Astrolabe
+1 Black Lotus
+1 Brainstorm
+1 Demonic Tutor
+1 Underworld Breach
+3 Emry, Lurker of the Loch
+1 Engineered Explosives
+1 Flooded Strand
+4 Force of Will
+1 Grinding Station
+1 Intuition
+1 Karn, the Great Creator
+1 Lotus Petal
+1 Mana Crypt
+1 Manifold Key
+3 Misty Rainforest
+1 Mox Emerald
+1 Mox Jet
+2 Mox Opal
+1 Mox Pearl
+1 Mox Ruby
+1 Mox Sapphire
+1 Narset, Parter of Veils
+2 Oko, Thief of Crowns
+2 Polluted Delta
+1 Ponder
+2 Pyroblast
+2 Scalding Tarn
+1 Sensei's Divining Top
+4 Snow-Covered Island
+1 Sol Ring
+1 Bolas's Citadel
+1 Time Vault
+1 Time Walk
+1 Tinker
+1 Tolarian Academy
+1 Tropical Island
+1 Underground Sea
+3 Urza, Lord High Artificer
+1 Volcanic Island
+
+//Sideboard
+SB: 3 By Force
+SB: 1 Engineered Explosives
+SB: 1 Ensnaring Bridge
+SB: 1 Grafdigger's Cage
+SB: 1 Nihil Spellbomb
+SB: 2 Pithing Needle
+SB: 1 Pyroblast
+SB: 1 Red Elemental Blast
+SB: 1 Snow-Covered Mountain
+SB: 1 Trinisphere
+SB: 2 The Tabernacle at Pendrell Vale

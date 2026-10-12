@@ -1,0 +1,44 @@
+2 Abrade
+1 Ancestral Recall
+1 Black Lotus
+1 Brainstorm
+1 Dig Through Time
+2 Flooded Strand
+1 Flusterstorm
+4 Forbidden Orchard
+2 Force of Negation
+4 Force of Will
+1 Gaea's Blessing
+1 Gitaxian Probe
+1 Griselbrand
+1 Island
+1 Mental Misstep
+1 Misty Rainforest
+1 Mox Emerald
+1 Mox Jet
+1 Mox Pearl
+1 Mox Ruby
+1 Mox Sapphire
+1 Narset, Parter of Veils
+1 Niv-Mizzet, Parun
+4 Oath of Druids
+4 Oko, Thief of Crowns
+1 Polluted Delta
+1 Ponder
+4 Preordain
+4 Pyroblast
+1 Scalding Tarn
+1 Spell Pierce
+1 Sylvan Library
+1 Time Walk
+3 Tropical Island
+1 Veil of Summer
+2 Volcanic Island
+
+1 Ancient Grudge
+1 Mindbreak Trap
+4 Nature's Claim
+3 Ravenous Trap
+3 Soul-Guide Lantern
+2 Surgical Extraction
+1 Veil of Summer

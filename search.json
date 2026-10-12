@@ -1,0 +1,21 @@
+---
+layout: null
+permalink: /search.json
+sitemap: false
+---
+{%- comment -%}
+  Search index. 46 posts of full text is ~61 KB gzipped, which is smaller than
+  lunr.js alone, so /search/ scores this itself rather than taking a dependency.
+  jsonify does the quoting and escaping; do not hand-roll it.
+{%- endcomment -%}
+[
+{%- for post in site.posts -%}
+{%- unless forloop.first -%},{%- endunless -%}
+{"t":{{ post.title | jsonify }},
+ "u":{{ post.url | relative_url | jsonify }},
+ "d":{{ post.date | date: "%Y-%m-%d" | jsonify }},
+ "g":{{ post.tags | join: " " | jsonify }},
+ "c":{{ post.categories | join: " " | jsonify }},
+ "x":{{ post.content | strip_html | normalize_whitespace | jsonify }}}
+{%- endfor -%}
+]

@@ -1,0 +1,152 @@
+---
+title: Search
+permalink: /search/
+---
+<h1>Search</h1>
+
+<form class="searchform" role="search" onsubmit="return false">
+  <label class="visually-hidden" for="q">Search posts</label>
+  <input type="search" id="q" name="q" placeholder="Search {{ site.posts | size }} posts…"
+         autocomplete="off" autocapitalize="off" spellcheck="false" autofocus>
+</form>
+
+<p id="searchstatus" class="searchstatus" role="status" aria-live="polite">
+  <noscript>Search needs JavaScript. <a href="{{ '/posts/' | relative_url }}">Browse all posts</a> instead.</noscript>
+</p>
+
+<ol id="searchresults" class="searchresults"></ol>
+
+<script>
+(function(){
+  var input  = document.getElementById('q');
+  var status = document.getElementById('searchstatus');
+  var list   = document.getElementById('searchresults');
+  var INDEX  = null, pending = null;
+
+  // WordPress left 2,975 HTML entities in the post bodies (&nbsp;, &#8217; and
+  // friends). strip_html keeps the entity text, so without decoding them here
+  // snippets read "I&#8217;m" and a search for "its" misses "it's".
+  var decoder = document.createElement('textarea');
+  function unent(s){
+    // Normalize even when there is nothing to decode: some posts carry literal
+    // curly quotes with no entities at all, and an early return skipped them.
+    if(s.indexOf('&') === -1) return norm(s);
+    decoder.innerHTML = s;              // textarea content is never parsed as markup
+    return norm(decoder.value);
+  }
+
+  // WordPress curled the quotes, so the body says "didn't" with U+2019 while
+  // anyone typing into the box uses a plain apostrophe. Fold both to ASCII on
+  // each side or those searches silently return nothing.
+  function norm(s){
+    return s.replace(/\u00a0/g, ' ')
+            .replace(/[\u2018\u2019\u02bc]/g, "'")
+            .replace(/[\u201c\u201d]/g, '"')
+            .replace(/[\u2013\u2014]/g, '-');
+  }
+
+  function esc(s){
+    return s.replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function terms(qs){
+    return norm(qs).toLowerCase().split(/[^a-z0-9']+/).filter(function(t){ return t.length > 1; });
+  }
+  function count(hay, needle){
+    var n = 0, i = hay.indexOf(needle);
+    while(i !== -1){ n++; i = hay.indexOf(needle, i + needle.length); }
+    return n;
+  }
+
+  // Title and tag hits outrank body hits, so searching a deck name finds the
+  // report about it rather than every post that mentions the card in passing.
+  function score(doc, ts){
+    var t = doc.t.toLowerCase(), g = (doc.g + ' ' + doc.c).toLowerCase(), x = doc.x.toLowerCase();
+    var total = 0;
+    for(var i = 0; i < ts.length; i++){
+      var ct = count(t, ts[i]), cg = count(g, ts[i]), cx = count(x, ts[i]);
+      if(!ct && !cg && !cx) return 0;          // every term must appear somewhere
+      total += ct * 12 + cg * 6 + cx;
+    }
+    return total;
+  }
+
+  function snippet(text, ts){
+    var low = text.toLowerCase(), at = -1;
+    for(var i = 0; i < ts.length && at === -1; i++) at = low.indexOf(ts[i]);
+    if(at === -1) at = 0;
+    var from = Math.max(0, at - 90), to = Math.min(text.length, at + 170);
+    var out = esc((from ? '…' : '') + text.slice(from, to).trim() + (to < text.length ? '…' : ''));
+    ts.forEach(function(t){
+      out = out.replace(new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi'),
+                        '<mark>$1</mark>');
+    });
+    return out;
+  }
+
+  function render(qs){
+    var ts = terms(qs);
+    list.textContent = '';
+    if(!ts.length){ status.textContent = ''; return; }
+    if(!INDEX){ status.textContent = 'Loading…'; return; }
+
+    var hits = [];
+    for(var i = 0; i < INDEX.length; i++){
+      var s = score(INDEX[i], ts);
+      if(s) hits.push([s, INDEX[i]]);
+    }
+    hits.sort(function(a, b){ return b[0] - a[0] || (a[1].d < b[1].d ? 1 : -1); });
+
+    status.textContent = hits.length
+      ? hits.length + (hits.length === 1 ? ' post' : ' posts')
+      : 'Nothing found for “' + qs + '”.';
+
+    hits.forEach(function(h){
+      var d = h[1], li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = d.u; a.textContent = d.t;
+      var meta = document.createElement('div');
+      meta.className = 'searchmeta';
+      meta.textContent = d.d + (d.g ? ' · ' + d.g.split(' ').join(', ') : '');
+      var p = document.createElement('p');
+      p.className = 'searchsnip';
+      p.innerHTML = snippet(d.x, ts);
+      li.appendChild(a); li.appendChild(meta); li.appendChild(p);
+      list.appendChild(li);
+    });
+  }
+
+  function go(){
+    var qs = input.value.trim();
+    render(qs);
+    // Keep the URL shareable without stacking history entries per keystroke.
+    try{
+      var u = new URL(window.location);
+      qs ? u.searchParams.set('q', qs) : u.searchParams.delete('q');
+      history.replaceState(null, '', u);
+    }catch(e){}
+  }
+
+  input.addEventListener('input', function(){
+    clearTimeout(pending);
+    pending = setTimeout(go, 120);
+  });
+
+  status.textContent = 'Loading…';
+  fetch('{{ "/search.json" | relative_url }}')
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(data){
+      INDEX = data.map(function(d){
+        d.x = unent(d.x); d.t = unent(d.t);
+        return d;
+      });
+      var q0 = new URLSearchParams(window.location.search).get('q');
+      if(q0){ input.value = q0; }
+      render(input.value.trim());
+    })
+    .catch(function(){
+      status.textContent = 'Search index failed to load.';
+    });
+})();
+</script>

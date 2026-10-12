@@ -1,0 +1,12 @@
+---
+layout: page
+title: Tags
+permalink: /tags/
+---
+<div class="content">
+{%- assign tags = site.tags | sort %}
+{%- for t in tags %}
+<h2 id="{{ t[0] | slugify }}">{{ t[0] }} <span class="meta">{{ t[1] | size }}</span></h2>
+<ul>{% for p in t[1] %}<li><a href="{{ p.url | relative_url }}">{{ p.title }}</a> <span class="meta">{{ p.date | date: "%Y" }}</span></li>{% endfor %}</ul>
+{%- endfor %}
+</div>

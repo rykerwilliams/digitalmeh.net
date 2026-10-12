@@ -1,0 +1,69 @@
+repository: rykerwilliams/digitalmeh.net
+
+title: digitalmeh.net
+email:
+description: >-
+  it's like meh, only digital
+baseurl: ""
+url: "https://digitalmeh.net"
+timezone: America/New_York
+
+nav:
+  - {title: Home, url: /}
+  - {title: Posts, url: /posts/}
+  - {title: Tags, url: /tags/}
+  - {title: Search, url: /search/}
+
+footer_text: "&copy; 2006–2026 Rajah James"
+
+author:
+  name: Rajah James
+
+# WordPress served posts at /%postname%/ and that is what the inbound links use.
+# Jekyll's default would be /:year/:month/:day/:title/ and would break every one.
+permalink: /:title/
+
+
+
+
+
+paginate: 10
+paginate_path: "/page:num/"
+
+collections:
+  posts:
+    output: true
+
+defaults:
+  # Pages get the page layout; posts need the post layout explicitly, or they
+  # render without their date, tags or lead image.
+  - scope: {path: ""}
+    values:
+      layout: "page"
+  - scope: {path: "", type: "posts"}
+    values:
+      layout: "post"
+      # include_on_search / include_on_feed / show_date / show_tags /
+      # show_categories / show_breadcrumb were chulapa's switches. Nothing in
+      # this hand-written theme reads any of them.
+
+plugins:
+  - jekyll-paginate
+  - jekyll-include-cache
+  - jekyll-sitemap
+  - jekyll-redirect-from
+
+exclude:
+  - docs/
+  - script/
+  - assets/originals/
+
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  hard_wrap: false
+  auto_ids: true
+
+sass:
+  style: compressed
