@@ -1,14 +1,18 @@
 version: 2
 updates:
+  # The npm entry is gone: this was a Node project before the Jekyll migration
+  # and there is no package.json any more, so it only produced noise.
+  #
+  # Weekly rather than daily. This is a 46-post blog whose dependencies are four
+  # Jekyll plugins and a handful of actions; a daily check just fills the PR list.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "daily"
+      interval: "weekly"
+    open-pull-requests-limit: 3
+
   - package-ecosystem: "bundler"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+    open-pull-requests-limit: 3
