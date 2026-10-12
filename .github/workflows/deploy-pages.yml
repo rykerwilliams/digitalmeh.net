@@ -103,7 +103,7 @@ jobs:
       - name: Check inline scripts are intact
         run: python3 script/check-scripts.py
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
