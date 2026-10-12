@@ -48,7 +48,7 @@ jobs:
           python3 script/check-cards.py --delay 0.6 2>&1 | tail -40 | tee cards.txt
           echo "bad=$(grep -c '^  .*scryfall says' cards.txt || true)" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: link-report
           path: |
