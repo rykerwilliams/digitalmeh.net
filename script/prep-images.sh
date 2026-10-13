@@ -1,18 +1,24 @@
 #!/usr/bin/env bash
 #
-# prep-images.sh — three-way image prep for the GitHub Pages migration.
+# prep-images.sh — image prep for the GitHub Pages migration.
 #
 # Published GitHub Pages sites are capped at 1 GB. This sorts every image into
-# one of three buckets:
+# one of two buckets:
 #
-#   EXEMPT   decklist photos (deck-*), post headers/splash images, site logos
-#            and avatars. Left untouched — these are read, zoomed or shown
-#            full-width, so resolution matters more than bytes.
-#   ARCHIVE  DSLR shots (DSC_*). The full-resolution original is copied to
-#            assets/originals/ (excluded from the Jekyll build, so it costs
-#            nothing against the 1 GB cap) and then the published copy is
-#            resized. Originals stay downloadable via jsDelivr.
-#   RESIZE   everything else. Capped at --max px on the long edge.
+#   EXEMPT   decklist photos (deck-*), WordPress gallery renditions, post
+#            headers/splash images, site logos and avatars. Left untouched —
+#            these are read, zoomed or shown full-width, so resolution matters
+#            more than bytes.
+#   RESIZE   everything else. Capped at --max px on the long edge. Anything
+#            actually over the cap has its full-resolution original copied to
+#            assets/originals/ first (excluded from the Jekyll build, so it
+#            costs nothing against the 1 GB cap). Originals stay downloadable
+#            via jsDelivr.
+#
+# Archiving keys off the image's own dimensions, not its filename. The rule used
+# to list camera-origin patterns (DSC_*, IMG_*, DSCF*, P#######, date-named), so
+# a photo named anything else — a phone's UUID filename, say — was resized in
+# place and its original lost.
 #
 # Dry run by default; nothing is written without --apply.
 #
@@ -122,21 +128,6 @@ classify() {                         # $1 = repo-relative path -> bucket name
   if [[ "$path" == assets/images/avatars/* ]];    then shopt -u nocasematch; echo EXEMPT;  return; fi
   shopt -u nocasematch
   if is_header "$path";                           then echo EXEMPT;  return; fi
-  shopt -s nocasematch
-  # Camera-origin filenames: archive the full-resolution file before resizing.
-  #
-  # teamserio.us only needed DSC_*, because that is what its DSLR produces. This
-  # site has none of those -- its photos came through WordPress as IMG_* (35),
-  # P####### (7) and YYYY-MM-DD-HH.MM.SS (76). With only the DSC_ pattern the
-  # ARCHIVE bucket never fired here, so an oversized photo would have been
-  # resized in place with the original lost.
-  if [[ "$base" == DSC_*       ]];                then shopt -u nocasematch; echo ARCHIVE; return; fi
-  if [[ "$base" == IMG_*       ]];                then shopt -u nocasematch; echo ARCHIVE; return; fi
-  if [[ "$base" == DSCF*       ]];                then shopt -u nocasematch; echo ARCHIVE; return; fi
-  if [[ "$base" == P[0-9][0-9][0-9][0-9][0-9][0-9][0-9]* ]]; then shopt -u nocasematch; echo ARCHIVE; return; fi
-  # 2018-06-07-18.53.54.jpg -- a camera/phone timestamp name
-  if [[ "$base" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}[-_.] ]]; then shopt -u nocasematch; echo ARCHIVE; return; fi
-  shopt -u nocasematch
   echo RESIZE
 }
 
@@ -195,15 +186,13 @@ while IFS= read -r -d '' f; do
   # Archive the full-resolution original before touching it. Idempotent: an
   # existing archived original is never overwritten, so re-runs cannot clobber
   # a true original with an already-resized copy.
-  if [[ "$bucket" == ARCHIVE ]]; then
-    dest="$ORIGINALS/${f#assets/images/}"
-    if [[ ! -f "$dest" ]]; then
-      if [[ $APPLY -eq 1 ]]; then
-        mkdir -p "$(dirname "$dest")"
-        cp -p "$f" "$dest" || { echo "  !! archive copy failed: $f"; n_fail=$((n_fail+1)); continue; }
-      fi
-      b_archived=$((b_archived+size_before)); n_archive=$((n_archive+1))
+  dest="$ORIGINALS/${f#assets/images/}"
+  if [[ ! -f "$dest" ]]; then
+    if [[ $APPLY -eq 1 ]]; then
+      mkdir -p "$(dirname "$dest")"
+      cp -p "$f" "$dest" || { echo "  !! archive copy failed: $f"; n_fail=$((n_fail+1)); continue; }
     fi
+    b_archived=$((b_archived+size_before)); n_archive=$((n_archive+1))
   fi
 
   if [[ $APPLY -eq 1 ]]; then
