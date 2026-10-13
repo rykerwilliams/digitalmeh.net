@@ -198,3 +198,39 @@ exist before a photo-heavy post arrives, not after.
       those files become dead weight and should go.
 - [ ] **Decide the policy for new posts.** Image prep runs in CI on branches; the rule is
       the same as teamserio.us — drop photos in, commit to a branch, let CI resize.
+
+## Hosting and delivery
+
+GitHub Pages, deployed by workflow (`build_type: workflow`), custom domain on the apex with
+`www` as a CNAME to the `github.io` host. The cert covers both names.
+
+- [x] ~~**The whole site rendered unstyled, for every visitor**~~ — fixed 2026-10-13.
+      GitHub's CDN held a stale **404** for the *gzip-compressed* variant of
+      `/assets/css/main.css` and `/assets/js/autocard.js`, cached weeks earlier when those
+      paths did not yet exist. `vary: Accept-Encoding` keeps a separate cache entry per
+      encoding, so `curl` — which sends no `Accept-Encoding` by default — kept returning a
+      healthy `200 text/css` from the *uncompressed* entry while every browser, which always
+      requests gzip, received the 404.
+
+      Nothing client-side could fix it: query strings get no separate cache key (so the `?v=`
+      busting was irrelevant), and the CDN ignores client `Cache-Control: no-cache`, so hard
+      reloads, private windows and DNS flushes all failed. **The remedy is a fresh Pages
+      deploy**, which purges the CDN — a `workflow_dispatch` run of `deploy-pages.yml` is
+      enough. Afterwards a sweep of 78 assets across 16 pages came back clean.
+
+      **When checking a live asset, send `-H 'Accept-Encoding: gzip, deflate, br'`.** A plain
+      `curl` and a browser can get different HTTP statuses for the same URL, and that
+      difference hid this bug for weeks. `autocard.js` was 404ing the entire time, so the card
+      hover was dead too.
+- [x] ~~**No `CNAME` file is needed in this repo**~~ — confirmed 2026-10-13. The custom domain
+      lives in the Pages **settings**, and GitHub materialises `/CNAME` into the deployment
+      itself: the file has never existed in this repo or in any local build output, yet the
+      live site serves it. The file is authoritative only for *deploy-from-branch* sites,
+      where a build that drops it unsets the domain. Adding one here would create a second
+      source of truth that could disagree with the setting — **don't**.
+- [ ] **Add AAAA records for the apex.** The apex resolves to four A records and no AAAA, so
+      it has no IPv6 path; `www` has one only by inheriting it from the `github.io` CNAME.
+      GitHub publishes four Pages addresses for apex domains: `2606:50c0:8000::153` through
+      `:8003::153`. Low priority — IPv6-only clients reach the site today through carrier
+      NAT64/DNS64, and this explains no observed failure. `teamserio.us` has the identical
+      gap, so do both or neither.
