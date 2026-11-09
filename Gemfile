@@ -6,7 +6,7 @@ group :jekyll_plugins do
   gem "jekyll-feed", "~> 0.17"
   gem "jekyll-sitemap", "~> 1.4"
   gem "jekyll-paginate", "~> 1.1"
-  gem "jekyll-include-cache", "~> 0.2"
+  gem "jekyll-include-cache", "~> 0.3"
   # Old dated permalinks (/YYYY/MM/DD/slug/) 404 on the live WordPress site and
   # account for a large share of its traffic. Every migrated post declares the
   # old form in redirect_from so those links finally resolve.
